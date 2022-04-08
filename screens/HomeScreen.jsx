@@ -119,7 +119,7 @@ const HomeScreen = ({navigation}) => {
             {/*  onPress={() => navigation.navigate("New Tweet")}*/}
             {/*/>*/}
             <TouchableOpacity style={styles.floatingButton} onPress={goToNewTweet}>
-                <AntDesign name="pluscircle" size={50} color="red" />
+                <AntDesign name="pluscircle" size={50} color="#1d9bf1" />
             </TouchableOpacity>
         </View>
     );
