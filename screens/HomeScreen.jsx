@@ -36,10 +36,10 @@ const HomeScreen = ({navigation}) => {
             })
     }
     const handleRefresh = () => {
-        fetchAllTweets()
         setIsRefreshing(true)
         setPage(1)
         setIsAtEndOfScrolling(false)
+        fetchAllTweets()
     }
     const handleEnd = () => {
         setPage(page + 1)
