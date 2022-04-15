@@ -2,60 +2,30 @@ import {Button, FlatList, Platform, StyleSheet, Text, TouchableOpacityComponent,
 import {Image, TouchableOpacity} from "react-native";
 import { EvilIcons } from '@expo/vector-icons';
 import { AntDesign } from '@expo/vector-icons';
+import {useEffect, useState} from "react";
+import axios from "axios";
+import {formatDistanceToNowStrict} from "date-fns";
+import locale from 'date-fns/locale/en-US'
+import formatDistance from "../helpers/formatDistanceCustom";
+
+
+
 
 const HomeScreen = ({navigation}) => {
-    const DATA = [
-        {
-            id: 1,
-            title: "title one"
+const [tweet, setTweet] = useState([])
+    const fetchAllTweets =() =>{
+        axios.get(`http://78a2-103-210-58-23.ngrok.io/api/tweets`)
+            .then(response =>{
 
-        },
-        {
-            id: 2,
-            title: "title two"
-
-        },
-        {
-            id: 3,
-            title: "title Three"
-
-        },
-        {
-            id: 4,
-            title: "title four"
-
-        },
-        {
-            id: 5,
-            title: "title five"
-
-        },
-        {
-            id: 6,
-            title: "title six"
-
-        },
-        {
-            id: 7,
-            title: "title seven"
-
-        },
-        {
-            id: 8,
-            title: "title eight"
-
-        },
-        {
-            id: 9,
-            title: "title nine"
-
-        },
-        {
-            id: 10,
-            title: "title ten"
-
-        }
-    ];
+                setTweet(response.data)
+            })
+            .catch(error => {
+                console.log(error)
+            })
+    }
+    useEffect(()=>{
+        fetchAllTweets()
+    },[])
     const goToProfile = () => {
         navigation.navigate('Profile Screen')
     }
@@ -65,26 +35,32 @@ const HomeScreen = ({navigation}) => {
     const goToNewTweet = () => {
         navigation.navigate("New Tweet")
     }
-    const renderItem = ({item}) => (
+    const TweetItem = ({item:tweet}) => (
         <View style={styles.tweetContainer}>
             <TouchableOpacity onPress={goToProfile}>
 
                 <Image
-                    source={{uri: 'https://snack-web-player.s3.us-west-1.amazonaws.com/v2/43/static/media/react-native-logo.79778b9e.png'}}
+                    source={{uri: tweet?.user.avatar}}
                     style={styles.avatar}/>
             </TouchableOpacity>
             <View style={{flex: 1}}>
                 <TouchableOpacity style={styles.flexRow} onPress={goToProfile}>
 
-                    <Text numberOfLines={1} style={styles.tweetName}>{item.title}</Text>
-                    <Text numberOfLines={1} style={styles.tweetHandle}>@username</Text>
+                    <Text numberOfLines={1} style={styles.tweetName}>{tweet?.user.name}</Text>
+                    <Text numberOfLines={1} style={styles.tweetHandle}>@{tweet?.user.username}</Text>
                     <Text>&middot;</Text>
-                    <Text numberOfLines={1} style={styles.tweetHandle}>9m</Text>
+                    <Text numberOfLines={1} style={styles.tweetHandle}>
+                        {/*{tweet && formatDistanceToNowStrict(new Date(tweet.created_at))}</Text>*/}
+                        {tweet && formatDistanceToNowStrict(new Date(tweet.created_at),
+                            {
+                                locale: {
+                                    ...locale,
+                                    formatDistance,
+                                }
+                            })}</Text>
                 </TouchableOpacity>
                 <TouchableOpacity style={styles.tweetContentContainer} onPress={goToSingleTweet}>
-                    <Text style={styles.tweetContent}>Lorem ipsum dolor sit amet, consectetur adipisicing elit.
-                        Consectetur cupiditate dolorem esse, harum ipsum magnam magni tempora tenetur velit
-                        veniam.</Text>
+                    <Text style={styles.tweetContent}>{tweet?.body}</Text>
                 </TouchableOpacity>
                 <View style={styles.tweetEngagement}>
                     <TouchableOpacity style={styles.flexRow}>
@@ -109,8 +85,8 @@ const HomeScreen = ({navigation}) => {
     return (
         <View style={styles.container}>
             <FlatList
-                data={DATA}
-                renderItem={renderItem}
+                data={tweet}
+                renderItem={TweetItem}
                 keyExtractor={item => item.id}
                 ItemSeparatorComponent={()=><View style={styles.ItemSeparator}/>}
             />
