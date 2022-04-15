@@ -1,4 +1,4 @@
-import {Button, FlatList, Platform, StyleSheet, Text, TouchableOpacityComponent, View} from "react-native";
+import {ActivityIndicator, FlatList, Platform, StyleSheet, Text, TouchableOpacityComponent, View} from "react-native";
 import {Image, TouchableOpacity} from "react-native";
 import { EvilIcons } from '@expo/vector-icons';
 import { AntDesign } from '@expo/vector-icons';
@@ -12,16 +12,26 @@ import formatDistance from "../helpers/formatDistanceCustom";
 
 
 const HomeScreen = ({navigation}) => {
-const [tweet, setTweet] = useState([])
+    const [isLoading, setIsLoading] = useState(true)
+    const [tweet, setTweet] = useState([])
+    const [isRefreshing, setIsRefreshing] = useState(false)
     const fetchAllTweets =() =>{
         axios.get(`http://78a2-103-210-58-23.ngrok.io/api/tweets`)
             .then(response =>{
 
                 setTweet(response.data)
+                setIsLoading(false)
+                setIsRefreshing(false)
             })
             .catch(error => {
                 console.log(error)
+                setIsLoading(false)
+                setIsRefreshing(false)
             })
+    }
+    const handleRefresh = () =>{
+        fetchAllTweets()
+        setIsRefreshing(true)
     }
     useEffect(()=>{
         fetchAllTweets()
@@ -84,11 +94,17 @@ const [tweet, setTweet] = useState([])
     );
     return (
         <View style={styles.container}>
+            {
+                isLoading &&
+                <ActivityIndicator style={{marginTop:8}} size="large" color="gray" />
+            }
             <FlatList
                 data={tweet}
                 renderItem={TweetItem}
-                keyExtractor={item => item.id}
+                keyExtractor={item => item.id.toString()}
                 ItemSeparatorComponent={()=><View style={styles.ItemSeparator}/>}
+                refreshing={isRefreshing}
+                onRefresh={handleRefresh}
             />
             {/*<Button*/}
             {/*  title={"create new tweet"}*/}
