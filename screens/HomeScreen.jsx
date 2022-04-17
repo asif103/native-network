@@ -3,10 +3,10 @@ import {Image, TouchableOpacity} from "react-native";
 import {EvilIcons} from '@expo/vector-icons';
 import {AntDesign} from '@expo/vector-icons';
 import {useEffect, useState} from "react";
-import axios from "axios";
 import {formatDistanceToNowStrict} from "date-fns";
 import locale from 'date-fns/locale/en-US'
 import formatDistance from "../helpers/formatDistanceCustom";
+import axiosConfig from "../helpers/axiosConfig";
 
 
 const HomeScreen = ({navigation}) => {
@@ -16,7 +16,7 @@ const HomeScreen = ({navigation}) => {
     const [page, setPage] = useState(1)
     const [isAtEndOfScrolling, setIsAtEndOfScrolling] = useState(false)
     const fetchAllTweets = () => {
-        axios.get(`http://78a2-103-210-58-23.ngrok.io/api/tweets/?page=${page}`)
+        axiosConfig.get(`/tweets/?page=${page}`)
             .then(response => {
                 if (page === 1) {
                     setTweet(response.data.data)
@@ -50,8 +50,10 @@ const HomeScreen = ({navigation}) => {
     const goToProfile = () => {
         navigation.navigate('Profile Screen')
     }
-    const goToSingleTweet = () => {
-        navigation.navigate('Tweet Screen')
+    const goToSingleTweet = (tweetId) => {
+        navigation.navigate('Tweet Screen',{
+            tweetId:tweetId
+        })
     }
     const goToNewTweet = () => {
         navigation.navigate("New Tweet")
@@ -80,7 +82,7 @@ const HomeScreen = ({navigation}) => {
                                 }
                             })}</Text>
                 </TouchableOpacity>
-                <TouchableOpacity style={styles.tweetContentContainer} onPress={goToSingleTweet}>
+                <TouchableOpacity style={styles.tweetContentContainer} onPress={()=>goToSingleTweet(tweet.id)}>
                     <Text style={styles.tweetContent}>{tweet?.body}</Text>
                 </TouchableOpacity>
                 <View style={styles.tweetEngagement}>
